@@ -1,0 +1,50 @@
+services:
+  siouxdb:
+    image: mysql:8.0
+    container_name: tp_sioux_db
+    restart: unless-stopped
+    hostname: siouxdb
+    networks:
+      - core-network
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: sioux_platform
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - sioux_db_data:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "user", "-pBenchMark123" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+#  event-service:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.event-service
+#    container_name: tp_event_service
+#    networks:
+#      - core-network
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://eventdb:3306/ticketing_platform_events
+#      - SPRING_DATASOURCE_USERNAME=user
+#      - SPRING_DATASOURCE_PASSWORD=BenchMark123
+#      - SERVER_PORT=8082
+#      - SPRING_PROFILES_ACTIVE=docker
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      siouxdb:
+#        condition: service_healthy
+
+volumes:
+  sioux_db_data:
+
+networks:
+  core-network:
+    name: sioux-core-network
+    driver: bridge
